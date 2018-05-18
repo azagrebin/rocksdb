@@ -437,6 +437,9 @@ public class DbBenchmark {
     threadNum_ = (Integer) flags.get(Flag.threads);
     reads_ = (Integer) (flags.get(Flag.reads) == null ?
         flags.get(Flag.num) : flags.get(Flag.reads));
+    int ws = (Integer) (flags.get(Flag.writes) == null ?
+            flags.get(Flag.num) : flags.get(Flag.writes));
+    writes_ = ws < 0 ? reads_ : ws;
     keySize_ = (Integer) flags.get(Flag.key_size);
     valueSize_ = (Integer) flags.get(Flag.value_size);
     compressionRatio_ = (Double) flags.get(Flag.compression_ratio);
@@ -677,7 +680,7 @@ public class DbBenchmark {
           break;
         case "readwhilewriting":
           WriteTask writeTask = new WriteRandomTask(
-              -1, randSeed_, Long.MAX_VALUE, num_, writeOpt, 1, writesPerSeconds_);
+              -1, randSeed_, writes_, Long.MAX_VALUE, writeOpt, 1, writesPerSeconds_);
           writeTask.stats_.setExcludeFromMerge();
           bgTasks.add(writeTask);
           for (int t = 0; t < threadNum_; ++t) {
@@ -1213,10 +1216,10 @@ public class DbBenchmark {
         return parseBoolean(value);
       }
     },
-    writes(-1L, "Number of write operations to do. If negative, do\n" +
+    writes(-1, "Number of write operations to do. If negative, do\n" +
         "\t--num reads.") {
       @Override public Object parseValue(String value) {
-        return Long.parseLong(value);
+        return Integer.parseInt(value);
       }
     },
     sync(false,"Sync all writes to disk.") {
@@ -1620,6 +1623,7 @@ public class DbBenchmark {
   final List<String> benchmarks_;
   final int num_;
   final int reads_;
+  final int writes_;
   final int keySize_;
   final int valueSize_;
   final int threadNum_;
