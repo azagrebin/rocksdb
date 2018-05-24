@@ -15,6 +15,8 @@ val_size ?= 800
 
 cache_size ?= 500111222
 
+max_open_files ?= $(shell ulimit -n)
+
 ec2_templ ?= $(shell cat ./ec2_template.json | tr '\n' ' ')
 
 pem ?= rocksdb_test.pem
@@ -30,10 +32,12 @@ ebs_zone ?= us-east-2a
 
 args ?=
 
+name ?= rdbpti
+
 jbench_path ?= ~/rocksdb/java/jbenchmark
 
 build:
-	$(MAKE) -C ../.. jclean clean rocksdbjavastatic jdb_bench
+	$(MAKE) -C ../.. jdb_bench
 
 run:
 	mkdir -p $(db)/wal
@@ -48,6 +52,7 @@ run:
 	ks=$(key_size) \
 	vs=$(val_size) \
 	cs=$(cache_size) \
+	of=$(max_open_files) \
 	dwal=$(disable_wal) \
 	$(cwd)/$(scr).sh; \
 	cd $(cwd)
@@ -92,7 +97,10 @@ delete_template:
 	aws ec2 delete-launch-template --launch-template-id $(id)
 
 run_from_template:
-	aws ec2 run-instances --launch-template LaunchTemplateId=$(id) --user-data file://instance_launch.sh
+	aws ec2 run-instances \
+		--launch-template LaunchTemplateId=$(id) \
+		--tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=$(name)}]' \
+		--user-data file://instance_launch.sh
 
 list_instances:
 	aws ec2 describe-instances \
@@ -136,7 +144,16 @@ switch_volume:
 delete_volume:
 	aws ec2 delete-volume --volume-id $(id)
 
+instance_query_by_name:
+	@aws ec2 describe-instances \
+		--query 'Reservations[*].Instances[*].$(query)' \
+		--filters \
+			Name=tag:Name,Values=$(name) \
+			Name=instance-state-name,Values=pending,running,shutting-down,stopping,stopped \
+		--output text
+
 ssh:
+	$(eval ip ?= $(shell make instance_query_by_name query=PublicIpAddress name=$(name)))
 	ssh -i "$(pem)" ec2-user@$(ip) -t "cd $(jbench_path); bash -l"
 
 mount_instance:

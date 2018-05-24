@@ -4,19 +4,18 @@ echo "Load $num keys sequentially into database....."
 
 bpl=10485760;
 mcz=0;
-del=300000000;
-levels=6;
+del=0;
+levels=7;
 ctrig=4;
 delay=8;
 stop=12;
-wbn=3;
-mbc=20;
-mb=67108864;
-wbs=134217728;
+wbn=2;
+mbc=4;
+mb=2097152;
+wbs=4194304;
 sync=false;
-bs=65536;
-cs=1048576;
-of=500000;
+bs=4096;
+cs=-1;
 si=1000000;
 
 time $jdb_bench \
@@ -29,11 +28,11 @@ time $jdb_bench \
   --value_size=$vs \
   --block_size=$bs \
   --cache_size=$cs \
-  --bloom_bits=10 \
+  --bloom_bits=-1 \
   --compression_type=snappy \
   --cache_numshardbits=4 \
   --open_files=$of \
-  --verify_checksum=true \
+  --verify_checksum=false \
   --db=$db \
   --wal_dir=$db/wal \
   --sync=$sync \

@@ -36,6 +36,10 @@ sudo rpm -ivh jdk-8u171-linux-x64.rpm
 sudo rm -rf jdk-8u171-linux-x64.rpm
 export JAVA_HOME=/usr/java/default
 
+# increase max number of open files
+sudo bash -c 'echo "*        hard nofile 500000" >> /etc/security/limits.conf'
+sudo bash -c 'echo "*        soft nofile 500000" >> /etc/security/limits.conf'
+
 # git config
 cat >~/.gitconfig <<EOL
 [alias]

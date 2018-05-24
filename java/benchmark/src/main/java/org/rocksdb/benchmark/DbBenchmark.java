@@ -151,7 +151,7 @@ class Stats {
     double elapsed = (finish_ - start_);
     double throughput = (double) done_ / (elapsed * 1e-9);
 
-    System.out.format("%-12s : %11.3f micros/op %d ops/sec;%s%s\n",
+    System.out.format("REPORT %-12s : %11.3f micros/op %d ops/sec;%s%s\n",
             name, (elapsed * 1e-6) / done_,
             (long) throughput, (extra.length() == 0 ? "" : " "), extra.toString());
   }
@@ -810,7 +810,7 @@ public class DbBenchmark {
     }
 
     System.out.printf(
-        "%-16s : %11.5f micros/op; %6.1f MB/s;%s %d / %d task(s) finished.\n",
+        "STOP %-16s : %11.5f micros/op; %6.1f MB/s;%s %d / %d task(s) finished.\n",
         benchmark, elapsedSeconds / stats.done_ * 1e6,
         (stats.bytes_ / 1048576.0) / elapsedSeconds, extra,
         taskFinishedCount, concurrentThreads);

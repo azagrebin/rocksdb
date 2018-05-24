@@ -22,7 +22,7 @@ make create_volume
 make list_volumes
 ```
 
-- create [efs](https://aws.amazon.com/getting-started/tutorials/create-network-file-system) 
+- create general and multi i/o [efs](https://aws.amazon.com/getting-started/tutorials/create-network-file-system) 
 and check its network [security rule](https://docs.aws.amazon.com/efs/latest/ug/accessing-fs-create-security-groups.html) (step 3b)
 
 - create an instance template or manage [in web console](https://console.aws.amazon.com/ec2/v2/home#LaunchTemplates:sort=launchTemplateId)
@@ -32,7 +32,7 @@ make create_template list_templates
 
 - spin up one or more test instances from template or manage [in web console](https://console.aws.amazon.com/ec2/v2/home#Instances:sort=statusChecks)
 ```bash
-make run_from_template id=<template_id>
+make run_from_template id=<template_id> name=<instance_name>
 make list_instances
 ```
 
@@ -46,7 +46,9 @@ make attach_volume id=<volume_id> iid=<instance_id>
 - ssh into instance
 ```bash
 make list_instances
-make ssh ip=<instance_ip>
+make ssh name=<instance_name>
+# or 
+make ssh ip=<public_instance_ip>
 ```
 
 ## Setup benchmark
@@ -56,18 +58,22 @@ make ssh ip=<instance_ip>
 - clone repo
 ```bash
 git clone https://github.com/azagrebin/rocksdb.git
-cd rocksdb/java/jbenchmark
+cd rocksdb
 git checkout ebs
 ```
 
-- build benchmark
+- download last version of rocksdb jar
 ```bash
-make
+cd java
+mkdir -p target
+cd target
+wget http://central.maven.org/maven2/org/rocksdb/rocksdbjni/5.11.3/rocksdbjni-5.11.3.jar
+cd ../jbenchmark
 ```
 
 - set correct instance internal store device name in rocksdb/java/jbenchmark/instance_startup.sh
 ```bash
-df -h
+lsblk
 ```
 
 - set correct efs id in rocksdb/java/jbenchmark/instance_startup.sh
@@ -77,6 +83,11 @@ df -h
 sudo mkfs -t ext4 /dev/sdf
 ```
 
+- build benchmark
+```bash
+make build
+```
+
 - continue to `After instance restart` section
 
 ### After instance restart
@@ -84,4 +95,12 @@ sudo mkfs -t ext4 /dev/sdf
 ```bash
 cd <rocksdb_path>/rocksdb/java/jbenchmark
 ./instance_startup.sh
+```
+
+## Merge ebs switch between instances
+
+```bash
+make list_volumes
+make list_instances
+make switch_volume id=<volume id> iid=<target instance id>
 ```
