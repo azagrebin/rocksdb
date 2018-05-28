@@ -4,7 +4,7 @@ db ?= $(cwd)/db
 
 rocksdb_java ?= ..
 
-row_num ?=  10000000
+row_num ?= 10000000
 read_num ?= 1000000
 write_per_sec ?= 10000
 thread_num ?= 1
@@ -157,9 +157,10 @@ ssh:
 	ssh -i "$(pem)" ec2-user@$(ip) -t "cd $(jbench_path); bash -l"
 
 mount_instance:
+	$(eval ip ?= $(shell make instance_query_by_name query=PublicIpAddress name=$(name)))
 	mkdir -p ec2instance
 	ssh-add -K $(pem)
 	sshfs ec2-user@$(ip):/home/ec2-user ec2instance
 
 umount_instance:
-	umount ec2instance
+	diskutil umount ec2instance

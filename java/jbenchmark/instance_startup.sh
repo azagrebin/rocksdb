@@ -25,5 +25,3 @@ sudo chown -R ec2-user:ec2-user /efs
 sudo chown -R ec2-user:ec2-user /efsio
 
 export JAVA_HOME=/usr/java/default
-
-cd ~/rocksdb/java/jbenchmark

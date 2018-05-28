@@ -44,7 +44,7 @@ delete_cluster:
 	$(MAKE) delete_cluster_storage
 
 validate_cluster:
-	kops validate cluster
+	kops validate cluster --name $(cluster_name)
 
 clusters: 
 	kops get clusters
