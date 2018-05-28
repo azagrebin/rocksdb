@@ -13,7 +13,7 @@ disable_wal ?= false
 key_size ?= 16
 val_size ?= 800
 
-cache_size ?= 500111222
+cache_size ?= -1
 
 max_open_files ?= $(shell ulimit -n)
 

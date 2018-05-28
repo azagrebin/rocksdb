@@ -15,7 +15,6 @@ mb=2097152;
 wbs=4194304;
 sync=false;
 bs=4096;
-cs=-1;
 si=1000000;
 
 time $jdb_bench \
